@@ -3,108 +3,122 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 
-# Настройка страницы
-st.set_page_config(page_title="Ишенбеков Ясир | Studio", page_icon="🚀", layout="wide")
+# Настройка страницы в стиле Future
+st.set_page_config(page_title="Yasir.AI | Future Studio", page_icon="⚡", layout="wide")
 
-# --- СТИЛИЗАЦИЯ ПОД ТВОЁ ПОРТФОЛИО ---
+# --- ФУТУРИСТИЧНЫЙ ДИЗАЙН ---
 st.markdown("""
     <style>
-    /* Основной фон как на твоем сайте */
-    .main {
-        background-color: #0e1117;
-        color: #ffffff;
-        font-family: 'Inter', sans-serif;
-    }
-    /* Стиль карточек (Город, Школа, Направление) */
-    .info-card {
-        background-color: #1f2937;
-        border-radius: 15px;
-        padding: 20px;
-        border: 1px solid #374151;
-        text-align: left;
-    }
-    .card-label { color: #facc15; font-size: 0.9rem; font-weight: 600; }
-    .card-value { font-size: 1.1rem; font-weight: 700; margin-top: 5px; }
+    .main { background-color: #05070a; color: #e0e0e0; font-family: 'Orbitron', sans-serif; }
     
-    /* Стиль главного описания */
-    .bio-box {
-        background-color: #1f2937;
-        border-radius: 15px;
-        padding: 25px;
-        margin: 20px 0;
-        border: 1px solid #374151;
-        line-height: 1.6;
+    /* Профиль: Картинка слева, Инфо справа */
+    .profile-container {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 30px;
     }
-    .highlight { color: #facc15; font-weight: 700; }
+    .profile-pic {
+        width: 150px;
+        height: 150px;
+        border-radius: 20%;
+        border: 2px solid #facc15;
+        object-fit: cover;
+    }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; width: 100%; }
+    .info-item { background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 12px; border-left: 3px solid #facc15; }
+    .info-label { color: #888; font-size: 0.8rem; text-transform: uppercase; }
+    .info-value { font-weight: bold; font-size: 1.1rem; color: #fff; }
 
-    /* Настройка вкладок (Tabs) */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        justify-content: center;
+    /* Видео карточки */
+    .video-card {
+        background: #111;
+        border-radius: 15px;
+        padding: 10px;
+        border: 1px solid #222;
+        transition: 0.3s;
     }
+    .video-card:hover { border-color: #facc15; transform: translateY(-5px); }
+
+    /* Табы */
+    .stTabs [data-baseweb="tab-list"] { gap: 20px; }
     .stTabs [data-baseweb="tab"] {
-        background-color: #1f2937;
-        border-radius: 10px 10px 0 0;
-        padding: 10px 20px;
-        color: white;
+        height: 50px;
+        background: transparent !important;
+        border: 1px solid #333 !important;
+        border-radius: 10px !important;
+        color: #888 !important;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #facc15 !important;
-        color: #000 !important;
+        border-color: #facc15 !important;
+        color: #facc15 !important;
+        background: rgba(250, 204, 21, 0.1) !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- ВЕРХНЯЯ ЧАСТЬ (КАК НА САЙТЕ) ---
-st.markdown("<h1 style='text-align: center; margin-bottom: 0;'>Ишенбеков Ясир</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #9ca3af;'>Персональное портфолио</p>", unsafe_allow_html=True)
-
-# Вкладки для навигации без перезагрузки
-tab_about, tab_ai = st.tabs(["👤 Обо мне", "♻️ Нейросеть WasteWise"])
-
-with tab_about:
-    # Блок с карточками
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown('<div class="info-card"><div class="card-label">Город:</div><div class="card-value">Бишкек</div></div>', unsafe_allow_html=True)
-    with c2:
-        st.markdown('<div class="info-card"><div class="card-label">Школа:</div><div class="card-value">ЭЭЛ №65</div></div>', unsafe_allow_html=True)
-    with c3:
-        st.markdown('<div class="info-card"><div class="card-label">Направление:</div><div class="card-value">IT / Разработка</div></div>', unsafe_allow_html=True)
-
-    # Основной текст
-    st.markdown(f"""
-    <div class="bio-box">
-        Меня зовут <span class="highlight">Ишенбеков Ясир</span>. Я ученик школы <span class="highlight">ЭЭЛ №65</span> из города <span class="highlight">Бишкек</span>. 
-        Интересуюсь IT, созданием сайтов и видеопроектами. Постоянно учусь и развиваюсь.
+# --- ВЕРХНЯЯ ПАНЕЛЬ ---
+st.markdown("""
+<div class="profile-container">
+    <img src="https://img.icons8.com/bubbles/200/cyberpunk-head.png" class="profile-pic">
+    <div style="flex-grow: 1;">
+        <h1 style="margin:0; color:#facc15;">ИШЕНБЕКОВ ЯСИР</h1>
+        <p style="color:#888; margin-bottom: 20px;">Digital Creator & AI Developer</p>
+        <div class="info-grid">
+            <div class="info-item"><div class="info-label">Локация</div><div class="info-value">Бишкек</div></div>
+            <div class="info-item"><div class="info-label">Образование</div><div class="info-value">ЭЭЛ №65</div></div>
+            <div class="info-item"><div class="info-label">Стек</div><div class="info-value">Python / AI</div></div>
+        </div>
     </div>
-    """, unsafe_allow_html=True)
-    
-    st.write("### Мои работы")
-    st.info("Здесь будут отображаться твои проекты, как в нижней части твоего сайта.")
+</div>
+""", unsafe_allow_html=True)
 
-with tab_ai:
-    st.header("♻️ WasteWise AI")
-    st.write("Загрузи фото мусора, и я определю его тип для правильной переработки.")
+# Вкладки
+tab1, tab2 = st.tabs(["🚀 МОИ ПРОЕКТЫ", "♻️ NEURAL ANALYZER"])
+
+with tab1:
+    st.write("### Видео-портфолио")
+    v_col1, v_col2 = st.columns(2)
     
-    uploaded_file = st.file_uploader("Выбери фото...", type=["jpg", "png", "jpeg"])
+    videos = [
+        "https://youtu.be/cRumatSprfI",
+        "https://youtu.be/IJQV8EpzCAI",
+        "https://youtu.be/nG5uaU0ANJQ",
+        "https://youtu.be/KpeUXmTIUuQ",
+        "https://youtu.be/aN2W4JRKhTY"
+    ]
+    
+    for i, url in enumerate(videos):
+        target_col = v_col1 if i % 2 == 0 else v_col2
+        with target_col:
+            st.markdown('<div class="video-card">', unsafe_allow_html=True)
+            st.video(url)
+            st.markdown('</div>', unsafe_allow_html=True)
+            st.write("")
+
+with tab2:
+    st.markdown("### ♻️ WasteWise Engine")
+    uploaded_file = st.file_uploader("Загрузите объект для анализа...", type=["jpg","png","jpeg"])
     
     if uploaded_file:
-        image = Image.open(uploaded_file)
-        st.image(image, use_container_width=True)
-        
-        with st.spinner('Анализирую...'):
-            # Загрузка легкой модели прямо здесь
+        img = Image.open(uploaded_file)
+        st.image(img, width=400)
+        with st.spinner('Считывание нейронами...'):
+            # Заглушка модели для быстрой загрузки
             model = tf.keras.applications.MobileNetV2(weights='imagenet')
-            img = image.resize((224, 224))
-            x = tf.keras.preprocessing.image.img_to_array(img)
+            proc_img = img.resize((224, 224))
+            x = tf.keras.preprocessing.image.img_to_array(proc_img)
             x = np.expand_dims(x, axis=0)
             x = tf.keras.applications.mobilenet_v2.preprocess_input(x)
-            
             preds = model.predict(x)
             decoded = tf.keras.applications.mobilenet_v2.decode_predictions(preds, top=3)[0]
-
-        st.success("Готово!")
-        for i, (id, label, prob) in enumerate(decoded):
-            st.write(f"**{label}**: {round(prob*100, 1)}%")
+        
+        for _, label, prob in decoded:
+            st.write(f"**{label}**")
             st.progress(float(prob))
+
+st.markdown("<br><hr><center style='color:#444;'>FUTURE STUDIO v2.0 | 2026</center>", unsafe_allow_html=True)
