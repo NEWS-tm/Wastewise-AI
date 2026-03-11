@@ -6,7 +6,7 @@ import numpy as np
 # --- КОНФИГУРАЦИЯ ---
 st.set_page_config(page_title="ИШЕНБЕКОВ ЯСИР", layout="wide")
 
-# Только строгий черный стиль
+# Фиксированный Dark Mode
 bg, txt, card, brd = "#05070a", "#ffffff", "rgba(255,255,255,0.03)", "rgba(255,255,255,0.08)"
 accent = "#3b82f6"
 
@@ -15,10 +15,10 @@ st.markdown(f"""
     .stApp {{ background-color: {bg}; color: {txt}; }}
     .main-card {{ background: {card}; border: 1px solid {brd}; border-radius: 24px; padding: 40px; margin-bottom: 30px; }}
     .video-card {{ border: 1px solid #3a3a3a; border-radius: 16px; overflow: hidden; background: #000; margin-bottom: 20px; }}
-    .soon-card {{ border: 1px dashed {brd}; border-radius: 16px; height: 210px; display: flex; align-items: center; justify-content: center; opacity: 0.4; font-weight: bold; }}
     .contact-btn {{ display: inline-block; padding: 12px 28px; border-radius: 12px; font-weight: 600; text-decoration: none; margin-right: 12px; background: {accent}; color: white !important; }}
     .ai-box {{ background: {card}; border: 1px solid {brd}; border-radius: 20px; padding: 30px; }}
     [data-testid="stSidebar"] {{ display: none; }} 
+    footer {{visibility: hidden;}}
     </style>
     """, unsafe_allow_html=True)
 
@@ -48,13 +48,12 @@ with tabs[0]:
         "https://youtu.be/nG5uaU0ANJQ", "https://youtu.be/KpeUXmTIUuQ",
         "https://youtu.be/aN2W4JRKhTY"
     ]
+    # Выводим только существующие проекты без пустых карточек
     for i, url in enumerate(urls):
         with [c1, c2, c3][i % 3]:
             st.markdown('<div class="video-card">', unsafe_allow_html=True)
             st.video(url)
             st.markdown('</div>', unsafe_allow_html=True)
-    with c3:
-        st.markdown(f'<div class="soon-card">Скоро будет...</div>', unsafe_allow_html=True)
 
 with tabs[1]:
     st.markdown("<br>", unsafe_allow_html=True)
@@ -69,24 +68,27 @@ with tabs[1]:
             preds = model.predict(x)
             decoded = tf.keras.applications.mobilenet_v2.decode_predictions(preds, top=5)[0]
 
-        # --- МОЩНЫЙ МАППИНГ ПРЕДМЕТОВ ---
-        glass_items = ['bottle', 'wine', 'beaker', 'jug', 'vial', 'glass', 'goblet', 'decanter']
-        plastic_items = ['plastic', 'bag', 'shaker', 'tub', 'soap', 'container', 'water_bottle', 'pill_bottle']
-        paper_items = ['paper', 'box', 'cardboard', 'envelope', 'packet', 'carton', 'notebook', 'book_jacket']
-        metal_items = ['can', 'tin', 'filter', 'iron', 'pot', 'brass', 'safety_pin', 'ashcan', 'tray']
+        # --- ПОЛНЫЙ МАППИНГ ВСЕХ КАТЕГОРИЙ ---
+        glass_items = ['bottle', 'wine', 'beaker', 'jug', 'vial', 'glass', 'goblet', 'decanter', 'teapot', 'cup']
+        plastic_items = ['plastic', 'bag', 'shaker', 'tub', 'soap', 'container', 'water_bottle', 'pill_bottle', 'balloon', 'packet']
+        paper_items = ['paper', 'box', 'cardboard', 'envelope', 'packet', 'carton', 'notebook', 'book_jacket', 'menu', 'plate']
+        metal_items = ['can', 'tin', 'filter', 'iron', 'pot', 'brass', 'safety_pin', 'ashcan', 'tray', 'bucket', 'hammer']
 
-        verdict = "Не определено"
-        color = "#ff4b4b" # Красный по умолчанию
+        verdict = "Анализируем..."
+        color = "#9ca3af"
         
-        # Проверяем топ-5 предсказаний для точности
         found = False
         for _, label, prob in decoded:
             label = label.lower()
             if any(x in label for x in glass_items): verdict, color = "СТЕКЛО", "#4ade80"; found = True
             elif any(x in label for x in plastic_items): verdict, color = "ПЛАСТИК", "#3b82f6"; found = True
             elif any(x in label for x in paper_items): verdict, color = "БУМАГА / КАРТОН", "#fbbf24"; found = True
-            elif any(x in label for x in metal_items): verdict, color = "МЕТАЛЛ", "#9ca3af"; found = True
+            elif any(x in label for x in metal_items): verdict, color = "МЕТАЛЛ", "#f87171"; found = True
             if found: break
+        
+        # Если ничего не нашли в топ-5, но уверенность высокая - ставим общую категорию
+        if not found and decoded[0][2] > 0.1:
+            verdict, color = "ПРОЧЕЕ (ТРЕБУЕТ ПРОВЕРКИ)", "#9ca3af"
 
         st.markdown('<div class="ai-box">', unsafe_allow_html=True)
         col_img, col_txt = st.columns([1, 1.5], gap="large")
