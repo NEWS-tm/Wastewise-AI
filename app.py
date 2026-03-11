@@ -1,68 +1,57 @@
 import streamlit as st
-import tensorflow as tf
-import numpy as np
-from PIL import Image
 
-# 1. Настройка страницы
-st.set_page_config(page_title="Wastewise AI", page_icon="♻️")
-st.title("♻️ Wastewise — Умная сортировка")
-st.write("Загрузи фото, и ИИ проанализирует детали объекта.")
+# Настройка страницы в стиле твоей студии
+st.set_page_config(page_title="Yasir Ishenbekov Studio", page_icon="🚀", layout="centered")
 
-# 2. Загружаем модель
-@st.cache_resource
-def get_model():
-    return tf.keras.applications.MobileNetV2(weights='imagenet')
+# Применяем темную тему и стильные кнопки
+st.markdown("""
+    <style>
+    .main {
+        background-color: #0e1117;
+        color: white;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 20px;
+        height: 3.5em;
+        background-color: #2e7bcf;
+        color: white;
+        border: none;
+        font-weight: bold;
+        font-size: 18px;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #1c5a9e;
+        transform: scale(1.02);
+    }
+    .bio-container {
+        text-align: center;
+        padding: 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-model = get_model()
+# Контент страницы
+st.markdown('<div class="bio-container">', unsafe_allow_html=True)
+st.title("🚀 Yasir Ishenbekov Studio")
+st.write("### Привет! Я Ясир, ученик 8-го класса ЭЭЛ №65.")
+st.write("Я увлекаюсь программированием на Python и создаю AI-решения для экологии. Добро пожаловать в мой цифровой мир!")
+st.markdown('</div>', unsafe_allow_html=True)
 
-# Словарь категорий
-CATEGORIES = {
-    'ПЛАСТИК 🔵': ['bottle', 'nipple', 'container', 'cup', 'plastic', 'silicone', 'water_bottle', 'vial'],
-    'МЕТАЛЛ 🔴': ['can', 'tin', 'pot', 'iron', 'steel', 'brass', 'metal', 'aluminum'],
-    'СТЕКЛО 🟢': ['glass', 'wine_bottle', 'beer_bottle', 'jar', 'beaker', 'flask'],
-    'БУМАГА/КАРТОН 🟡': ['envelope', 'paper', 'cardboard', 'carton', 'packet', 'box'],
-    'ЭЛЕКТРОНИКА ⚠️': ['laptop', 'mouse', 'keyboard', 'phone', 'computer', 'screen']
-}
+st.divider()
 
-# 3. Загрузка фото
-uploaded_file = st.file_uploader("Выберите изображение...", type=["jpg", "png", "jpeg"])
+# Кнопки навигации
+col1, col2 = st.columns(2)
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Объект для анализа', width='stretch')
-    
-    if st.button('Глубокий анализ деталей'):
-        st.write("🔍 Изучаю текстуру и форму...")
-        
-        # Подготовка фото
-        img_resized = image.resize((224, 224))
-        img_array = tf.keras.preprocessing.image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
+with col1:
+    # Ссылка на твой старый сайт-портфолио (про хлеб и семью)
+    st.link_button("📂 Моё Портфолио", "https://news-tm.github.io/Yasir-Ishenbekov-Studio/")
 
-        # Предсказание
-        preds = model.predict(img_array)
-        top_3 = tf.keras.applications.mobilenet_v2.decode_predictions(preds, top=3)[0]
-        
-        st.subheader("Результаты сканирования:")
-        
-        final_category = None
-        
-        for i, (id, label, prob) in enumerate(top_3):
-            clean_label = label.replace('_', ' ')
-            confidence = prob * 100
-            st.write(f"{i+1}. **{clean_label}** — уверенность {confidence:.1f}%")
-            
-            # ИСПРАВЛЕНО: преобразуем prob в обычный float для st.progress
-            st.progress(float(prob))
-            
-            if final_category is None:
-                for cat_name, keywords in CATEGORIES.items():
-                    if any(key in label.lower() for key in keywords):
-                        final_category = cat_name
+with col2:
+    # Переход на страницу с нейросетью
+    if st.button("♻️ Распознавание мусора"):
+        st.switch_page("pages/classifier.py")
 
-        st.divider()
-        if final_category:
-            st.header(f"Итог: {final_category}")
-        else:
-            st.warning("Тип материала не определен. Попробуй другой ракурс.")
+st.divider()
+st.caption("© 2026 Yasir Ishenbekov. Создано с помощью Streamlit и TensorFlow.")
