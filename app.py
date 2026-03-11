@@ -7,23 +7,23 @@ import numpy as np
 if 'theme' not in st.session_state: st.session_state.theme = 'dark'
 if 'lang' not in st.session_state: st.session_state.lang = 'RU'
 
-# --- СЛОВАРЬ ПЕРЕВОДА И ОБУЧЕНИЯ ---
+# --- СЛОВАРЬ И ОБУЧЕНИЕ ---
 texts = {
     'RU': {
         'name': 'ИШЕНБЕКОВ ЯСИР', 'city': 'Бишкек', 'school': 'ЭЭЛ №65',
-        'about': 'Я ученик 8-го класса из города Бишкек. Создаю IT-проекты на стыке AI и экологии. Постоянно развиваюсь и собираю своё цифровое портфолио.',
-        'projects': '🚀 МОИ ПРОЕКТЫ', 'analyzer': '♻️ NEURAL WASTE AI',
-        'verdict': '🤖 ВЕРДИКТ:', 'unknown': 'Не определено',
-        'glass': 'СТЕКЛО', 'plastic': 'ПЛАСТИК', 'paper': 'БУМАГА / КАРТОН', 'metal': 'МЕТАЛЛ',
-        'contact_me': 'СВЯЗАТЬСЯ:', 'upload': 'Выберите фото для анализа...'
+        'about': 'Я ученик 8-го класса из Бишкека. Разрабатываю IT-проекты, увлекаюсь искусственным интеллектом и экологией. Это моё цифровое пространство.',
+        'projects': '🚀 ПРОЕКТЫ', 'analyzer': '♻️ WASTE AI',
+        'verdict': 'ВЕРДИКТ:', 'unknown': 'Анализируем...',
+        'glass': 'Стекло', 'plastic': 'Пластик', 'paper': 'Бумага / Картон', 'metal': 'Металл',
+        'contact': 'СВЯЗЬ', 'soon': 'Скоро будет...', 'upload': 'Загрузите фото для сканирования'
     },
     'EN': {
         'name': 'YASIR ISHENBEKOV', 'city': 'Bishkek', 'school': 'EEL No. 65',
-        'about': '8th-grade student from Bishkek. Creating IT projects focused on AI and ecology. Constantly learning and building my digital portfolio.',
-        'projects': '🚀 MY PROJECTS', 'analyzer': '♻️ NEURAL WASTE AI',
-        'verdict': '🤖 VERDICT:', 'unknown': 'Unknown',
-        'glass': 'GLASS', 'plastic': 'PLASTIC', 'paper': 'PAPER / CARDBOARD', 'metal': 'METAL',
-        'contact_me': 'CONTACT:', 'upload': 'Choose a photo to analyze...'
+        'about': '8th-grade student from Bishkek. Developing IT projects, passionate about AI and ecology. This is my digital space.',
+        'projects': '🚀 PROJECTS', 'analyzer': '♻️ WASTE AI',
+        'verdict': 'VERDICT:', 'unknown': 'Analyzing...',
+        'glass': 'Glass', 'plastic': 'Plastic', 'paper': 'Paper / Cardboard', 'metal': 'Metal',
+        'contact': 'CONTACT', 'soon': 'Coming soon...', 'upload': 'Upload a photo to scan'
     }
 }
 
@@ -32,77 +32,86 @@ L = texts[st.session_state.lang]
 # --- КОНФИГУРАЦИЯ ---
 st.set_page_config(page_title=L['name'], layout="wide")
 
-# Цветовая схема
+# Цвета
 if st.session_state.theme == 'dark':
-    bg, txt, card, brd = "#0d1117", "#f0f6fc", "rgba(255,255,255,0.05)", "rgba(255,255,255,0.1)"
+    bg, txt, card, brd = "#05070a", "#ffffff", "rgba(255,255,255,0.03)", "rgba(255,255,255,0.08)"
+    accent = "#3b82f6"
 else:
-    bg, txt, card, brd = "#ffffff", "#1a1a1a", "#f6f8fa", "#d0d7de"
+    bg, txt, card, brd = "#f8f9fa", "#111827", "#ffffff", "#e5e7eb"
+    accent = "#2563eb"
 
 # --- СТИЛИ ---
 st.markdown(f"""
     <style>
     .stApp {{ background-color: {bg}; color: {txt}; }}
-    .profile-card {{
-        background: {card}; border: 1px solid {brd}; border-radius: 20px; padding: 40px; margin-bottom: 25px;
+    .main-card {{
+        background: {card}; border: 1px solid {brd}; border-radius: 24px; padding: 40px; margin-bottom: 30px;
+        backdrop-filter: blur(10px);
     }}
-    .video-container {{
-        border: 2px solid #000000; /* ЧЕРНАЯ ОБВОДКА */
-        border-radius: 12px; overflow: hidden; background: #000; margin-bottom: 20px;
+    .video-card {{
+        border: 1px solid {brd}; border-radius: 16px; overflow: hidden; background: #000; margin-bottom: 20px;
+        transition: 0.3s ease;
     }}
-    .contact-link {{
-        display: inline-block; padding: 12px 25px; background: #238636; color: white !important;
-        border-radius: 10px; text-decoration: none; font-weight: bold; margin-right: 10px; transition: 0.3s;
+    .video-card:hover {{ border-color: {accent}; transform: translateY(-5px); }}
+    .soon-card {{
+        border: 1px dashed {brd}; border-radius: 16px; height: 210px;
+        display: flex; align-items: center; justify-content: center; opacity: 0.4;
     }}
-    .contact-link.tg {{ background: #0088cc; }}
-    .contact-link:hover {{ opacity: 0.8; transform: translateY(-2px); }}
-    .ai-result {{ background: {card}; border-radius: 15px; border: 1px solid {brd}; padding: 25px; }}
+    .contact-btn {{
+        display: inline-block; padding: 12px 28px; border-radius: 12px; font-weight: 600;
+        text-decoration: none; margin-right: 12px; transition: 0.3s;
+    }}
+    .wa {{ background: #25d366; color: white !important; }}
+    .tg {{ background: #0088cc; color: white !important; }}
+    .ai-box {{ background: {card}; border: 1px solid {brd}; border-radius: 20px; padding: 30px; }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- БОКОВАЯ ПАНЕЛЬ ---
+# --- SIDEBAR ---
 with st.sidebar:
-    st.markdown("### UI SETTINGS")
-    if st.button("🌓 Сменить тему", use_container_width=True):
+    st.markdown("### DESIGN")
+    if st.button("🌓 Switch Theme", use_container_width=True):
         st.session_state.theme = 'light' if st.session_state.theme == 'dark' else 'dark'
         st.rerun()
     if st.button("🌐 RU / EN", use_container_width=True):
         st.session_state.lang = 'EN' if st.session_state.lang == 'RU' else 'RU'
         st.rerun()
 
-# --- ОСНОВНОЙ БЛОК ---
+# --- HEADER ---
 st.markdown(f"""
-<div class="profile-card">
-    <h1 style="margin:0; font-size: 3rem; letter-spacing: -1px;">{L['name']}</h1>
-    <p style="opacity: 0.6; font-size: 1.1rem; margin-top: 5px;">📍 {L['city']} | 🏫 {L['school']}</p>
-    <p style="margin-top: 20px; font-size: 1.2rem; line-height: 1.6; max-width: 800px;">{L['about']}</p>
-    <div style="margin-top: 30px;">
-        <span style="display:block; margin-bottom:10px; font-weight:bold; opacity:0.7;">{L['contact_me']}</span>
-        <a href="https://wa.me/996507049" class="contact-link">WhatsApp</a>
-        <a href="https://t.me/HewsTM" class="contact-link tg">Telegram</a>
+<div class="main-card">
+    <h1 style="margin:0; font-size: 3.5rem; font-weight: 800; letter-spacing: -2px;">{L['name']}</h1>
+    <p style="opacity: 0.5; font-size: 1.1rem; margin-bottom: 25px;">📍 {L['city']} &nbsp;•&nbsp; 🏫 {L['school']}</p>
+    <p style="font-size: 1.25rem; line-height: 1.6; max-width: 850px; opacity: 0.9;">{L['about']}</p>
+    <div style="margin-top: 35px;">
+        <a href="https://wa.me/996507049" class="contact-btn wa">WhatsApp</a>
+        <a href="https://t.me/HewsTM" class="contact-btn tg">Telegram</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs([L['projects'], L['analyzer']])
+tabs = st.tabs([L['projects'], L['analyzer']])
 
-with tab1:
-    v_col1, v_col2, v_col3 = st.columns(3)
+with tabs[0]:
+    st.markdown("<br>", unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3, gap="large")
     urls = [
         "https://youtu.be/cRumatSprfI", "https://youtu.be/IJQV8EpzCAI",
         "https://youtu.be/nG5uaU0ANJQ", "https://youtu.be/KpeUXmTIUuQ",
         "https://youtu.be/aN2W4JRKhTY"
     ]
     for i, url in enumerate(urls):
-        with [v_col1, v_col2, v_col3][i % 3]:
-            st.markdown('<div class="video-container">', unsafe_allow_html=True)
-            st.video(url)
-            st.markdown('</div>', unsafe_allow_html=True)
+        with [c1, c2, c3][i % 3]:
+            st.markdown('<div class="video-card">', unsafe_allow_html=True); st.video(url); st.markdown('</div>', unsafe_allow_html=True)
+    with c3:
+        st.markdown(f'<div class="soon-card">{L["soon"]}</div>', unsafe_allow_html=True)
 
-with tab2:
+with tabs[1]:
+    st.markdown("<br>", unsafe_allow_html=True)
     up = st.file_uploader(L['upload'], type=["jpg","png","jpeg"], label_visibility="collapsed")
     if up:
         img = Image.open(up)
-        with st.spinner('🧠 Анализ нейросетью...'):
+        with st.spinner('Neural Processing...'):
             model = tf.keras.applications.MobileNetV2(weights='imagenet')
             p_img = img.resize((224, 224))
             x = np.expand_dims(tf.keras.preprocessing.image.img_to_array(p_img), axis=0)
@@ -110,27 +119,30 @@ with tab2:
             preds = model.predict(x)
             decoded = tf.keras.applications.mobilenet_v2.decode_predictions(preds, top=3)[0]
 
-        # --- СУПЕР ОБУЧЕНИЕ (МАППИНГ) ---
+        # --- ADVANCED AI TRAINING (MAPPING) ---
         mapping = {
-            'glass': L['glass'], 'bottle': L['glass'], 'wine': L['glass'], 'beaker': L['glass'], 'jug': L['glass'],
-            'plastic': L['plastic'], 'bag': L['plastic'], 'container': L['plastic'], 'wrapper': L['plastic'], 'tub': L['plastic'],
-            'paper': L['paper'], 'box': L['paper'], 'cardboard': L['paper'], 'envelope': L['paper'], 'packet': L['paper'],
-            'can': L['metal'], 'tin': L['metal'], 'pot': L['metal'], 'iron': L['metal'], 'filter': L['metal']
+            'bottle': L['glass'], 'wine': L['glass'], 'beaker': L['glass'], 'jug': L['glass'], 'vial': L['glass'],
+            'plastic': L['plastic'], 'bag': L['plastic'], 'wrapper': L['plastic'], 'tub': L['plastic'], 'soap': L['plastic'],
+            'paper': L['paper'], 'box': L['paper'], 'cardboard': L['paper'], 'envelope': L['paper'], 'packet': L['paper'], 'menu': L['paper'],
+            'can': L['metal'], 'tin': L['metal'], 'iron': L['metal'], 'pot': L['metal'], 'tray': L['metal'], 'brass': L['metal']
         }
         
         main_label = decoded[0][1].lower()
         verdict = L['unknown']
         for key, val in mapping.items():
-            if key in main_label: verdict = val
+            if key in main_label: 
+                verdict = val
+                break
 
-        st.markdown('<div class="ai-result">', unsafe_allow_html=True)
-        c1, c2 = st.columns([1, 1.5])
-        with c1: st.image(img, use_container_width=True)
-        with c2:
-            st.subheader(f"{L['verdict']} {verdict}")
+        st.markdown('<div class="ai-box">', unsafe_allow_html=True)
+        col_img, col_txt = st.columns([1, 1.5], gap="large")
+        with col_img: st.image(img, use_container_width=True)
+        with col_txt:
+            st.markdown(f"<h2 style='margin-top:0;'>{L['verdict']} <span style='color:{accent};'>{verdict}</span></h2>", unsafe_allow_html=True)
             for _, label, prob in decoded:
-                st.write(f"**{label}**: {round(float(prob*100), 1)}%")
+                st.write(f"**{label.replace('_', ' ').capitalize()}**")
                 st.progress(float(prob))
+                st.caption(f"Confidence: {round(float(prob*100), 1)}%")
         st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("<br><br><center style='opacity:0.2;'>© 2026 Ishenbekov Yasir</center>", unsafe_allow_html=True)
+st.markdown(f"<br><br><p style='text-align:center; opacity:0.2;'>© 2026 {L['name']}</p>", unsafe_allow_html=True)
