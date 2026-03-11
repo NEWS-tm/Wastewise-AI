@@ -3,111 +3,119 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 
-# --- СОСТОЯНИЕ (ТЕМА И ЯЗЫК) ---
+# --- ИНИЦИАЛИЗАЦИЯ ---
 if 'theme' not in st.session_state: st.session_state.theme = 'dark'
 if 'lang' not in st.session_state: st.session_state.lang = 'RU'
 
-# --- ТЕКСТЫ ---
+# --- СЛОВАРЬ ПЕРЕВОДА И ОБУЧЕНИЯ ---
 texts = {
     'RU': {
-        'name': 'ИШЕНБЕКОВ ЯСИР', 'loc': 'ЛОКАЦИЯ', 'school': 'ШКОЛА', 'city': 'Бишкек',
-        'about_title': '👨‍💻 Обо мне', 
-        'about_text': 'Я ученик школы ЭЭЛ №65 из города Бишкек. Интересуюсь IT, созданием сайтов и видеопроектами. Постоянно учусь и развиваюсь, собирая своё портфолио.',
-        'contact': 'Связаться со мной', 'tab1': '🚀 МОИ ПРОЕКТЫ', 'tab2': '♻️ АНАЛИЗАТОР',
-        'verdict': '🤖 Вердикт:', 'unknown': 'Не определено',
-        'glass': 'Стекло', 'plastic': 'Пластик', 'paper': 'Бумага/Картон', 'metal': 'Металл'
+        'name': 'ИШЕНБЕКОВ ЯСИР', 'city': 'Бишкек', 'school': 'ЭЭЛ №65',
+        'about': 'Я ученик 8-го класса из города Бишкек. Создаю IT-проекты на стыке AI и экологии. Постоянно развиваюсь и собираю своё цифровое портфолио.',
+        'projects': '🚀 МОИ ПРОЕКТЫ', 'analyzer': '♻️ NEURAL WASTE AI',
+        'verdict': '🤖 ВЕРДИКТ:', 'unknown': 'Не определено',
+        'glass': 'СТЕКЛО', 'plastic': 'ПЛАСТИК', 'paper': 'БУМАГА / КАРТОН', 'metal': 'МЕТАЛЛ',
+        'contact_me': 'СВЯЗАТЬСЯ:', 'upload': 'Выберите фото для анализа...'
     },
     'EN': {
-        'name': 'YASIR ISHENBEKOV', 'loc': 'LOCATION', 'school': 'SCHOOL', 'city': 'Bishkek',
-        'about_title': '👨‍💻 About Me', 
-        'about_text': 'I am a student at school EEL No. 65 from Bishkek. I am interested in IT, web development and video projects. Constantly learning and growing my portfolio.',
-        'contact': 'Contact me', 'tab1': '🚀 PROJECTS', 'tab2': '♻️ ANALYZER',
-        'verdict': '🤖 Verdict:', 'unknown': 'Unknown',
-        'glass': 'Glass', 'plastic': 'Plastic', 'paper': 'Paper/Cardboard', 'metal': 'Metal'
+        'name': 'YASIR ISHENBEKOV', 'city': 'Bishkek', 'school': 'EEL No. 65',
+        'about': '8th-grade student from Bishkek. Creating IT projects focused on AI and ecology. Constantly learning and building my digital portfolio.',
+        'projects': '🚀 MY PROJECTS', 'analyzer': '♻️ NEURAL WASTE AI',
+        'verdict': '🤖 VERDICT:', 'unknown': 'Unknown',
+        'glass': 'GLASS', 'plastic': 'PLASTIC', 'paper': 'PAPER / CARDBOARD', 'metal': 'METAL',
+        'contact_me': 'CONTACT:', 'upload': 'Choose a photo to analyze...'
     }
 }
 
 L = texts[st.session_state.lang]
 
-# --- КОНФИГ ---
+# --- КОНФИГУРАЦИЯ ---
 st.set_page_config(page_title=L['name'], layout="wide")
 
-# --- СТИЛИ ---
-bg = "#080a0d" if st.session_state.theme == 'dark' else "#ffffff"
-txt = "#e0e0e0" if st.session_state.theme == 'dark' else "#1a1a1a"
-card = "rgba(255,255,255,0.03)" if st.session_state.theme == 'dark' else "#f8f9fa"
-brd = "rgba(255,255,255,0.1)" if st.session_state.theme == 'dark' else "#e2e8f0"
+# Цветовая схема
+if st.session_state.theme == 'dark':
+    bg, txt, card, brd = "#0d1117", "#f0f6fc", "rgba(255,255,255,0.05)", "rgba(255,255,255,0.1)"
+else:
+    bg, txt, card, brd = "#ffffff", "#1a1a1a", "#f6f8fa", "#d0d7de"
 
+# --- СТИЛИ ---
 st.markdown(f"""
     <style>
     .stApp {{ background-color: {bg}; color: {txt}; }}
-    .main-card {{ background: {card}; border: 1px solid {brd}; border-radius: 20px; padding: 30px; margin-bottom: 20px; }}
-    .info-tag {{ background: {card}; border: 1px solid {brd}; padding: 8px 15px; border-radius: 10px; font-size: 0.9rem; }}
-    .contact-btn {{ 
-        display: inline-block; padding: 10px 20px; background: {card}; border: 1px solid {brd}; 
-        border-radius: 10px; color: {txt} !important; text-decoration: none; transition: 0.3s; margin-right: 10px;
+    .profile-card {{
+        background: {card}; border: 1px solid {brd}; border-radius: 20px; padding: 40px; margin-bottom: 25px;
     }}
-    .contact-btn:hover {{ border-color: #3b82f6; }}
-    .video-box {{ background: {card}; border: 1px solid {brd}; border-radius: 15px; padding: 10px; }}
+    .video-container {{
+        border: 2px solid #000000; /* ЧЕРНАЯ ОБВОДКА */
+        border-radius: 12px; overflow: hidden; background: #000; margin-bottom: 20px;
+    }}
+    .contact-link {{
+        display: inline-block; padding: 12px 25px; background: #238636; color: white !important;
+        border-radius: 10px; text-decoration: none; font-weight: bold; margin-right: 10px; transition: 0.3s;
+    }}
+    .contact-link.tg {{ background: #0088cc; }}
+    .contact-link:hover {{ opacity: 0.8; transform: translateY(-2px); }}
+    .ai-result {{ background: {card}; border-radius: 15px; border: 1px solid {brd}; padding: 25px; }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- SIDEBAR ---
+# --- БОКОВАЯ ПАНЕЛЬ ---
 with st.sidebar:
-    if st.button("🌓 Light / Dark"): 
+    st.markdown("### UI SETTINGS")
+    if st.button("🌓 Сменить тему", use_container_width=True):
         st.session_state.theme = 'light' if st.session_state.theme == 'dark' else 'dark'
         st.rerun()
-    if st.button("🌐 RU / EN"): 
+    if st.button("🌐 RU / EN", use_container_width=True):
         st.session_state.lang = 'EN' if st.session_state.lang == 'RU' else 'RU'
         st.rerun()
 
-# --- ШАПКА ---
+# --- ОСНОВНОЙ БЛОК ---
 st.markdown(f"""
-<div class="main-card">
-    <h1 style="margin:0; font-size: 2.8rem;">{L['name']}</h1>
-    <div style="display: flex; gap: 15px; margin-top: 15px;">
-        <div class="info-tag">📍 {L['city']}</div>
-        <div class="info-tag">🏫 ЭЭЛ №65</div>
-    </div>
-    <div style="margin-top: 25px;">
-        <h3>{L['about_title']}</h3>
-        <p style="font-size: 1.1rem; opacity: 0.8; max-width: 800px;">{L['about_text']}</p>
-    </div>
-    <div style="margin-top: 20px;">
-        <a href="https://wa.me/996507049" class="contact-btn">💬 WhatsApp</a>
-        <a href="https://t.me/HewsTM" class="contact-btn">✈️ Telegram</a>
+<div class="profile-card">
+    <h1 style="margin:0; font-size: 3rem; letter-spacing: -1px;">{L['name']}</h1>
+    <p style="opacity: 0.6; font-size: 1.1rem; margin-top: 5px;">📍 {L['city']} | 🏫 {L['school']}</p>
+    <p style="margin-top: 20px; font-size: 1.2rem; line-height: 1.6; max-width: 800px;">{L['about']}</p>
+    <div style="margin-top: 30px;">
+        <span style="display:block; margin-bottom:10px; font-weight:bold; opacity:0.7;">{L['contact_me']}</span>
+        <a href="https://wa.me/996507049" class="contact-link">WhatsApp</a>
+        <a href="https://t.me/HewsTM" class="contact-link tg">Telegram</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-tabs = st.tabs([L['tab1'], L['tab2']])
+tab1, tab2 = st.tabs([L['projects'], L['analyzer']])
 
-with tabs[0]:
+with tab1:
     v_col1, v_col2, v_col3 = st.columns(3)
-    v_urls = ["https://youtu.be/cRumatSprfI", "https://youtu.be/IJQV8EpzCAI", "https://youtu.be/nG5uaU0ANJQ", "https://youtu.be/KpeUXmTIUuQ", "https://youtu.be/aN2W4JRKhTY"]
-    for i, url in enumerate(v_urls):
+    urls = [
+        "https://youtu.be/cRumatSprfI", "https://youtu.be/IJQV8EpzCAI",
+        "https://youtu.be/nG5uaU0ANJQ", "https://youtu.be/KpeUXmTIUuQ",
+        "https://youtu.be/aN2W4JRKhTY"
+    ]
+    for i, url in enumerate(urls):
         with [v_col1, v_col2, v_col3][i % 3]:
-            st.markdown('<div class="video-box">', unsafe_allow_html=True); st.video(url); st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('<div class="video-container">', unsafe_allow_html=True)
+            st.video(url)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-with tabs[1]:
-    up = st.file_uploader("Upload", type=["jpg","png","jpeg"], label_visibility="collapsed")
+with tab2:
+    up = st.file_uploader(L['upload'], type=["jpg","png","jpeg"], label_visibility="collapsed")
     if up:
         img = Image.open(up)
-        with st.spinner('AI Thinking...'):
+        with st.spinner('🧠 Анализ нейросетью...'):
             model = tf.keras.applications.MobileNetV2(weights='imagenet')
             p_img = img.resize((224, 224))
-            x = tf.keras.preprocessing.image.img_to_array(p_img)
-            x = np.expand_dims(x, axis=0)
+            x = np.expand_dims(tf.keras.preprocessing.image.img_to_array(p_img), axis=0)
             x = tf.keras.applications.mobilenet_v2.preprocess_input(x)
             preds = model.predict(x)
             decoded = tf.keras.applications.mobilenet_v2.decode_predictions(preds, top=3)[0]
 
-        # ПРОДВИНУТЫЙ МАППИНГ (ОБУЧЕНИЕ)
+        # --- СУПЕР ОБУЧЕНИЕ (МАППИНГ) ---
         mapping = {
-            'bottle': L['glass'], 'wine': L['glass'], 'beaker': L['glass'], 'goblet': L['glass'],
-            'water_bottle': L['plastic'], 'pill_bottle': L['plastic'], 'packet': L['plastic'], 'bag': L['plastic'],
-            'carton': L['paper'], 'box': L['paper'], 'cardboard': L['paper'], 'envelope': L['paper'], 'menu': L['paper'],
-            'can': L['metal'], 'tin': L['metal'], 'pot': L['metal'], 'brass': L['metal']
+            'glass': L['glass'], 'bottle': L['glass'], 'wine': L['glass'], 'beaker': L['glass'], 'jug': L['glass'],
+            'plastic': L['plastic'], 'bag': L['plastic'], 'container': L['plastic'], 'wrapper': L['plastic'], 'tub': L['plastic'],
+            'paper': L['paper'], 'box': L['paper'], 'cardboard': L['paper'], 'envelope': L['paper'], 'packet': L['paper'],
+            'can': L['metal'], 'tin': L['metal'], 'pot': L['metal'], 'iron': L['metal'], 'filter': L['metal']
         }
         
         main_label = decoded[0][1].lower()
@@ -115,14 +123,14 @@ with tabs[1]:
         for key, val in mapping.items():
             if key in main_label: verdict = val
 
-        st.markdown(f'<div class="main-card" style="display:flex; gap:30px;">', unsafe_allow_html=True)
-        c1, c2 = st.columns([1, 2])
+        st.markdown('<div class="ai-result">', unsafe_allow_html=True)
+        c1, c2 = st.columns([1, 1.5])
         with c1: st.image(img, use_container_width=True)
         with c2:
-            st.write(f"### {L['verdict']} {verdict}")
+            st.subheader(f"{L['verdict']} {verdict}")
             for _, label, prob in decoded:
                 st.write(f"**{label}**: {round(float(prob*100), 1)}%")
                 st.progress(float(prob))
         st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown(f"<p style='text-align:center; opacity:0.3; margin-top:50px;'>© 2026 Ishenbekov Yasir</p>", unsafe_allow_html=True)
+st.markdown("<br><br><center style='opacity:0.2;'>© 2026 Ishenbekov Yasir</center>", unsafe_allow_html=True)
